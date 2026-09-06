@@ -39,8 +39,6 @@ import HyTplChatSrc from "../../compositions/tpl-chat-pop.html?raw";
 import HyTplCursorSrc from "../../compositions/tpl-cursor-morph.html?raw";
 import HyTplMediaSrc from "../../compositions/tpl-media-canvas.html?raw";
 import GsapSrc from "../../vendor/gsap/dist/gsap.min.js?raw";
-import SpaceGrotesk500 from "../../public/fonts/space-grotesk-500-normal.woff2?inline";
-import SpaceGrotesk700 from "../../public/fonts/space-grotesk-700-normal.woff2?inline";
 import DemoCardSvg from "../../public/media/demo-card.svg?raw";
 
 import type { AgentNote } from "../motion/agent-notes";
@@ -182,9 +180,35 @@ function extractCssFor(src: string): string {
 const fence = (lang: string, text: string) => `\`\`\`${lang}\n${text.trim()}\n\`\`\``;
 
 const dataSvg = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(DemoCardSvg)}`;
+const assetCache = new Map<string, Promise<string>>();
+
+function assetDataUrl(url: string): Promise<string> {
+  const cached = assetCache.get(url);
+  if (cached) return cached;
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 10_000);
+  const pending = fetch(url, { signal: controller.signal })
+    .then((response) => {
+      if (!response.ok) throw new Error(`素材读取失败: ${url} (${response.status})`);
+      return response.blob();
+    })
+    .then((blob) => new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.onerror = () => reject(reader.error ?? new Error(`素材编码失败: ${url}`));
+      reader.readAsDataURL(blob);
+    }))
+    .finally(() => window.clearTimeout(timeout))
+    .catch((error) => {
+      assetCache.delete(url);
+      throw error;
+    });
+  assetCache.set(url, pending);
+  return pending;
+}
 
 /** 把仓库内的 HY 合成转换成真正的单文件版本：内联运行时/字体/示例素材并自动循环。 */
-function standaloneHy(src: string): string {
+function standaloneHy(src: string, font500: string, font700: string): string {
   const autoplay = `<script>
 window.addEventListener("load", () => {
   for (const timeline of Object.values(window.__timelines || {})) {
@@ -195,10 +219,15 @@ window.addEventListener("load", () => {
 
   return src
     .replace(/<script src="\.\.\/vendor\/gsap\/dist\/gsap\.min\.js"><\/script>/g, `<script>${GsapSrc}</script>`)
-    .replace(/(?:\.\.\/)?fonts\/space-grotesk-500-normal\.woff2/g, SpaceGrotesk500)
-    .replace(/(?:\.\.\/)?fonts\/space-grotesk-700-normal\.woff2/g, SpaceGrotesk700)
+    .replace(/(?:\.\.\/)?fonts\/space-grotesk-500-normal\.woff2/g, font500)
+    .replace(/(?:\.\.\/)?fonts\/space-grotesk-700-normal\.woff2/g, font700)
     .replace(/\.\.\/media\/proposal-card\.png/g, dataSvg)
     .replace("</body>", `${autoplay}\n</body>`);
+}
+
+/** 测试工具使用：用调用方提供的字体 data URL 构建指定 HY 单文件。 */
+export function buildStandaloneHy(id: string, font500: string, font700: string): string {
+  return standaloneHy(HY_SRC[id] ?? "", font500, font700);
 }
 
 function missingKeyframes(css: string): string[] {
@@ -241,8 +270,16 @@ export function auditAgentSpecs(): SpecAudit {
         errors.push(`${item.id}: 缺少 HY 源码`);
         continue;
       }
-      const standalone = standaloneHy(src);
-      if (/\.\.\/(?:vendor|fonts|media)\//.test(standalone)) errors.push(`${item.id}: 仍有仓库相对资源`);
+      const standalone = standaloneHy(src, "data:font/woff2;base64,AA==", "data:font/woff2;base64,AA==");
+      const executable = standalone
+        .replace(/<!--[\s\S]*?-->/g, "")
+        .replace(/&lt;[\s\S]*?&gt;/g, "");
+      const refs = [
+        ...[...executable.matchAll(/\bsrc=["']([^"']+)/gi)].map((match) => match[1]),
+        ...[...executable.matchAll(/url\(\s*["']?([^"')]+)/gi)].map((match) => match[1]),
+      ];
+      const external = refs.filter((ref) => !/^(?:data:|blob:|%23)/i.test(ref));
+      if (external.length) errors.push(`${item.id}: 仍有外部资源 ${external.join(", ")}`);
       if (!standalone.includes("timeline.repeat(-1).play(0)")) errors.push(`${item.id}: 缺少自动播放启动器`);
     }
   }
@@ -254,7 +291,7 @@ export function auditAgentSpecs(): SpecAudit {
  * 组装自包含的 agent 契约：完整源码 + 依赖样式 + 主题默认值，
  * agent 拿到即可在任意项目 100% 复刻，无需访问本仓库。
  */
-export function buildSpec(e: Enhancement, note: AgentNote, kindLabel: string, catLabel: string, apiPublic?: string): string {
+export async function buildSpec(e: Enhancement, note: AgentNote, kindLabel: string, catLabel: string, apiPublic?: string): Promise<string> {
   const api = apiPublic ?? e.api;
   const head = [
     `【视觉增强】${e.name}（${e.id}）· ${catLabel} · ${kindLabel}`,
@@ -296,7 +333,11 @@ export function buildSpec(e: Enhancement, note: AgentNote, kindLabel: string, ca
       `④ 验收: 元素挂载后应在浏览器中产生可见的 transform / opacity / clip-path 变化，且控制台无缺失关键帧错误`,
     ].join("\n");
   } else {
-    const html = standaloneHy(HY_SRC[e.id] ?? "");
+    const [font500, font700] = await Promise.all([
+      assetDataUrl("/fonts/space-grotesk-500-normal.woff2"),
+      assetDataUrl("/fonts/space-grotesk-700-normal.woff2"),
+    ]);
+    const html = standaloneHy(HY_SRC[e.id] ?? "", font500, font700);
     body = [
       `## 复刻材料（单文件，可直接运行）`,
       `① 保存为任意 .html 文件并在浏览器打开；GSAP、英文字体和示例素材均已内联，加载后会自动循环播放:`,

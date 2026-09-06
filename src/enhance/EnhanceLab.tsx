@@ -481,25 +481,38 @@ function CardStageDemo() {
  * 「给 agent」按钮的产出物由 sources.buildSpec 合成：注解 + 完整源码
  * （组件 TSX / CSS 关键帧 / HY 合成整文件），自包含、可直接 100% 复刻。
  */
-function CopyButton({ text }: { text: string }) {
-  const [ok, setOk] = useState(false);
+function CopyButton({ getText }: { getText: () => Promise<string> }) {
+  const [state, setState] = useState<"idle" | "busy" | "ok" | "error">("idle");
   const onCopy = async () => {
     try {
-      await navigator.clipboard.writeText(text);
+      setState("busy");
+      const text = await getText();
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+      }
+      setState("ok");
+      setTimeout(() => setState("idle"), 1400);
     } catch {
-      const ta = document.createElement("textarea");
-      ta.value = text;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand("copy");
-      ta.remove();
+      setState("error");
+      setTimeout(() => setState("idle"), 2200);
     }
-    setOk(true);
-    setTimeout(() => setOk(false), 1400);
   };
   return (
-    <button className={`el-copy ${ok ? "is-ok" : ""}`} onClick={onCopy} title="复制完整实现（注解 + 源码 + 样式，agent 可直接 100% 复刻）">
-      {ok ? "✓ 已复制" : "⧉ 给 agent"}
+    <button
+      className={`el-copy ${state === "ok" ? "is-ok" : state === "error" ? "is-error" : ""}`}
+      onClick={onCopy}
+      disabled={state === "busy"}
+      aria-live="polite"
+      title="复制完整实现（注解 + 源码 + 样式 + 依赖，agent 可直接复刻）"
+    >
+      {state === "busy" ? "准备中…" : state === "ok" ? "✓ 已复制" : state === "error" ? "复制失败·重试" : "⧉ 给 agent"}
     </button>
   );
 }
@@ -625,7 +638,7 @@ export function EnhanceLab() {
                   <span className="el-label">用法</span>
                   <span className="el-apiwrap">
                     <code className="el-api">{publicApi(e)}</code>
-                    <CopyButton text={buildSpec(e, note, KIND_LABEL[e.kind], CAT_LABEL[e.category], publicApi(e))} />
+                    <CopyButton getText={() => buildSpec(e, note, KIND_LABEL[e.kind], CAT_LABEL[e.category], publicApi(e))} />
                   </span>
                 </div>
               </div>

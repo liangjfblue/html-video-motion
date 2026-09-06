@@ -379,6 +379,8 @@ html[data-theme="light"] {
 }
 .el-copy:hover { border-color: var(--accent, #b98eff); color: var(--accent, #b98eff); }
 .el-copy.is-ok { border-color: #54c890; color: #54c890; }
+.el-copy.is-error { border-color: #e26d6d; color: #e26d6d; }
+.el-copy:disabled { cursor: wait; opacity: 0.65; }
 
 /* ── 各演示的辅助样式（随卡片宽度等比） ───────── */
 .el-rule-demo { display: flex; flex-direction: column; gap: 14px; width: 76%; font-size: clamp(12px, 2.4cqw, 22px); }
