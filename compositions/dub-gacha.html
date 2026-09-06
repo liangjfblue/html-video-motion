@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family:"Noto Sans SC"; src:local("Noto Sans SC"); }
+  @font-face { font-family:"PingFang SC"; src:local("PingFang SC"); }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1920px; height:1080px; overflow:hidden; background:#08090d; }
+  [data-composition-id] {
+    position:relative; width:1920px; height:1080px; color:#f6f2e8;
+    background:
+      radial-gradient(900px 640px at 30% 40%, rgba(185,142,255,0.12), transparent 68%),
+      linear-gradient(168deg, #0b1226 0%, #0a1120 46%, #0c1530 100%);
+    font-family:"Noto Sans SC","PingFang SC",sans-serif; overflow:hidden;
+  }
+  .grid { position:absolute; inset:0; opacity:0.45;
+    background:
+      repeating-linear-gradient(0deg, rgba(148,180,255,0.05) 0 1px, transparent 1px 72px),
+      repeating-linear-gradient(90deg, rgba(148,180,255,0.05) 0 1px, transparent 1px 72px);
+    mask-image:radial-gradient(1200px 800px at 40% 50%, #000 40%, transparent 100%);
+  }
+  .wrap { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .kicker { font-size:46px; letter-spacing:9px; color:#ffc402; margin-bottom:30px; opacity:0; }
+  h1 { font-size:96px; font-weight:800; color:#fff; margin-bottom:80px; opacity:0; }
+  .row { display:flex; gap:26px; margin-bottom:90px; }
+  .g { width:150px; height:460px; border-radius:20px; background:rgba(246,242,232,0.055);
+       border:2px solid rgba(246,242,232,0.16); display:flex; align-items:flex-end; justify-content:center;
+       padding-bottom:26px; font-size:34px; color:#b98eff; opacity:0; }
+  .g-bad { border-color:#aaa59a; color:#aaa59a; }
+  .stamp { position:absolute; font-size:44px; font-weight:800; color:#ffc402; opacity:0;
+           border:3px solid #ffc402; border-radius:14px; padding:14px 34px; transform:rotate(-8deg); }
+  .note { font-size:40px; color:#aaa59a; opacity:0; }
+</style>
+</head>
+<body>
+<div data-composition-id="dubgacha" data-start="0" data-duration="11" data-width="1920" data-height="1080" data-fps="25">
+  <div class="grid"></div>
+  <div class="wrap">
+    <div class="kicker" id="k">同一段话，重新配一次</div>
+    <h1 id="h">这不是玄学，是模型在随机抽卡</h1>
+    <div class="row" id="row"></div>
+    <div class="stamp" id="stamp">重 摇</div>
+    <div class="note" id="n">注意啊——只重配出问题的那一段就行</div>
+  </div>
+</div>
+<script src="../vendor/gsap/dist/gsap.min.js"></script>
+<script>
+  const row = document.getElementById("row");
+  for (let i = 0; i < 10; i++) {
+    const g = document.createElement("div");
+    g.className = "g"; g.id = "g" + i;
+    row.appendChild(g);
+  }
+  const stamp = document.getElementById("stamp");
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+  tl.to("#k", { opacity: 1, duration: 0.35 }, 0.3);
+  tl.to("#h", { opacity: 1, duration: 0.45 }, 0.7);
+  for (let i = 0; i < 10; i++) {
+    tl.to("#g" + i, { opacity: 1, duration: 0.22 }, 1.5 + i * 0.12);
+  }
+  // 第 7 块抽到坏卡：变灰 + 抖动
+  tl.to("#g6", { borderColor: "#aaa59a", duration: 0.25 }, 3.4);
+  tl.to("#g6", { x: 8, duration: 0.06, repeat: 9, yoyo: true }, 3.7);
+  // 盖「重摇」章
+  tl.to(stamp, { opacity: 1, scale: 1.15, duration: 0.28, ease: "power3.out" }, 4.6);
+  tl.to(stamp, { scale: 1, duration: 0.2 }, 4.9);
+  // 重摇：坏块翻成紫卡
+  tl.to("#g6", { rotationY: 90, duration: 0.3, ease: "power2.in" }, 5.6);
+  tl.to("#g6", { borderColor: "#b98eff", color: "#b98eff", duration: 0.01 }, 5.9);
+  tl.set(stamp, { textContent: "✓ 重摇成功" }, 5.9);
+  tl.to("#g6", { rotationY: 0, duration: 0.3, ease: "power2.out" }, 5.9);
+  tl.to("#g6", { borderColor: "#ffc402", color: "#ffc402", duration: 0.3 }, 6.3);
+  // 坏块标记消隐
+  tl.to("#g6 span", { opacity: 0, duration: 0.2 }, 5.9);
+  tl.to("#n", { opacity: 1, duration: 0.4 }, 7.2);
+  // 定格
+  window.__timelines.dubgacha = tl;
+</script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "name": "html-video-motion",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "HTML Video Motion — 41 条可复刻的口播视频动效组件库：React / 纯 CSS / HyperFrames 合成三种形态，LIVE 预览 + 自包含 agent 契约",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build && node scripts/copy-static-assets.mjs",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "audit:specs": "node scripts/audit-agent-specs.mjs",
+    "deploy": "bash scripts/deploy.sh"
+  },
+  "dependencies": {
+    "echarts": "^5.5.1",
+    "gsap": "^3.12.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.0"
+  }
+}

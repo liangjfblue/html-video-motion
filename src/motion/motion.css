@@ -1,0 +1,334 @@
+/* ─────────────────────────────────────────────────────────────────────
+ * motion.css — shared styles for the motion component library.
+ * All components animate ON MOUNT (step change re-mounts → replay).
+ * Colors default to theme tokens so components follow the active theme.
+ * ───────────────────────────────────────────────────────────────────── */
+
+/* ── StaggerText ── word/char units rise with a back-out overshoot ── */
+.st-text .st-unit {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(40px) rotateX(-90deg);
+  animation: st-pop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: var(--st-delay, 0ms);
+}
+@keyframes st-pop {
+  to {
+    opacity: 1;
+    transform: translateY(0) rotateX(0);
+  }
+}
+
+/* ── Typewriter ── caret blink while text reveals ── */
+.tw-caret {
+  display: inline-block;
+  width: 0.08em;
+  min-width: 3px;
+  height: 1em;
+  margin-left: 0.06em;
+  vertical-align: -0.12em;
+  background: var(--accent, currentColor);
+  animation: tw-blink 0.9s steps(1) infinite;
+}
+@keyframes tw-blink {
+  50% { opacity: 0; }
+}
+
+/* ── CountUp ── tabular digits prevent layout jitter ── */
+.cu-num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── MorphGrid ── grid geometry morphs between two layouts ── */
+.morph-grid {
+  display: grid;
+  gap: 16px;
+  transition: grid-template-columns 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    grid-template-rows 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.morph-grid.morph-1 { grid-template-columns: repeat(3, 1fr); grid-auto-rows: 1fr; }
+.morph-grid.morph-2 { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 1fr; }
+.morph-grid > .morph-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* ── RiseIn — 遮罩上滑关键帧（组件注入 delay/duration） ── */
+@keyframes rise-unmask {
+  to { transform: translateY(0); }
+}
+
+/* ── Odometer — 数字翻牌列 ── */
+.od-col {
+  display: inline-block;
+  height: 1em;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+.od-strip {
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+}
+.od-digit {
+  height: 1em;
+  line-height: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* ── ConfettiBurst ── */
+.cf-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* ── ScrambleText ── 解码过程稳定宽度 ── */
+.sc-text {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── HighlightSweep — 荧光笔扫过（墨层垫底，文字压上） ── */
+.hl-sweep {
+  position: relative;
+  display: inline;
+}
+.hl-sweep-ink {
+  position: absolute;
+  inset: -0.06em -0.18em;
+  z-index: 0;
+  border-radius: 0.18em;
+  background: linear-gradient(100deg,
+    transparent 0%, var(--hl-color) 12%, var(--hl-color) 88%, transparent 100%);
+  transform: scaleX(0);
+  transform-origin: left center;
+  opacity: var(--hl-rest, 0.35);
+  animation: hl-sweep-run var(--hl-dur, 700ms) var(--ease-soft, ease) forwards;
+  animation-delay: var(--hl-delay, 0ms);
+}
+.hl-sweep-text { position: relative; z-index: 1; }
+@keyframes hl-sweep-run {
+  0%   { transform: scaleX(0); opacity: 0.9; }
+  55%  { transform: scaleX(1); opacity: 0.9; }
+  100% { transform: scaleX(1); opacity: var(--hl-rest, 0.35); }
+}
+
+/* ── Spotlight — 聚光压暗（焦点亮洞 + 径向暗场） ── */
+.spotlight {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle at var(--sp-x, 50%) var(--sp-y, 42%),
+    transparent 0,
+    transparent var(--sp-r, 24%),
+    rgba(4, 5, 9, var(--sp-dim, 0.72)) calc(var(--sp-r, 24%) * 1.7));
+  animation: spotlight-on var(--sp-dur, 900ms) var(--ease-soft, ease) forwards;
+  animation-delay: var(--sp-delay, 0ms);
+}
+@keyframes spotlight-on {
+  from { opacity: 0; transform: scale(1.12); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── ScanSweep — 扫描光带（一次掠过；终点按 1/width 出画） ── */
+.scan-sweep {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+  pointer-events: none;
+  display: block;
+}
+.scan-sweep i {
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: 0;
+  width: calc(var(--sw-w, 0.3) * 100%);
+  background: linear-gradient(var(--sw-angle, 100deg),
+    transparent 0%, var(--sw-color) 50%, transparent 100%);
+  transform: translateX(-130%);
+  animation: scan-sweep-run var(--sw-dur, 1100ms) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: var(--sw-delay, 0ms);
+}
+@keyframes scan-sweep-run {
+  to { transform: translateX(calc(100% / var(--sw-w, 0.3) + 30%)); }
+}
+
+/* ── Aurora — 极光氛围（两团错相漂移的径向渐变。
+      录制性能预算：不用 filter:blur —— 大面积 blur 动画让 screencast
+      每帧都损大区域,送帧延迟直接变成成片抖动;渐变 falloff 已足够软） ── */
+.aurora {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: var(--au-opacity, 0.5);
+}
+.aurora i {
+  position: absolute;
+  width: 74%;
+  height: 74%;
+  border-radius: 50%;
+  will-change: transform;
+}
+.aurora .au-a {
+  top: -20%;
+  left: -14%;
+  background: radial-gradient(closest-side,
+    var(--au-c1), transparent 50% 62%, transparent 100%);
+  animation: au-drift-a var(--au-dur, 16s) ease-in-out infinite alternate;
+  animation-delay: var(--au-phase, 0s);
+}
+.aurora .au-b {
+  bottom: -24%;
+  right: -12%;
+  background: radial-gradient(closest-side,
+    var(--au-c2, var(--primary, #5a8cff)), transparent 50% 62%, transparent 100%);
+  animation: au-drift-b calc(var(--au-dur, 16s) * 1.3) ease-in-out infinite alternate;
+}
+@keyframes au-drift-a {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(9%, 7%, 0) scale(1.18); }
+}
+@keyframes au-drift-b {
+  from { transform: translate3d(0, 0, 0) scale(1.1); }
+  to   { transform: translate3d(-8%, -6%, 0) scale(0.92); }
+}
+
+/* ── ShimmerText — 渐变字表面扫光（吸收自官方 thinking-big 构图：
+      backgroundPosition 140% → -140%，background-clip:text） ── */
+.shimmer-text {
+  display: inline-block;
+}
+.shimmer-text-inner {
+  background-image: linear-gradient(110deg,
+    var(--sh-base, var(--text, #f6f2e8)) 42%,
+    var(--sh-color, #ffffff) 50%,
+    var(--sh-base, var(--text, #f6f2e8)) 58%);
+  background-size: 240% 100%;
+  background-position: 140% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer-sweep var(--sh-dur, 900ms) ease-in-out var(--sh-repeat, 1) forwards;
+  animation-delay: var(--sh-delay, 0ms);
+  will-change: background-position;
+}
+@keyframes shimmer-sweep {
+  to { background-position: -140% 0; }
+}
+
+/* ── CardStage / MediaCard — 多素材卡编排（进场 stagger + 焦点 DOF） ── */
+.card-stage { position: relative; width: 100%; }
+.card-stage.cs-duo  { display: grid; grid-template-columns: 1.4fr 1fr; gap: 44px; align-items: center; }
+.card-stage.cs-trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px; align-items: center; }
+
+/* 槽位：有机角度;canvas 槽位绝对布点(需容器有高) */
+.cs-duo  .cs-item:nth-child(2) { --cs-rot: 2deg; }
+.cs-trio .cs-item:nth-child(1) { --cs-rot: -1.6deg; }
+.cs-trio .cs-item:nth-child(3) { --cs-rot: 1.6deg; }
+.card-stage.cs-canvas .cs-item { position: absolute; }
+.card-stage.cs-canvas .cs-item:nth-child(1) { left: 3%;  top: 10%;   width: 46%; --cs-rot: -3.2deg; }
+.card-stage.cs-canvas .cs-item:nth-child(2) { right: 5%; top: 5%;    width: 40%; --cs-rot: 2.4deg; }
+.card-stage.cs-canvas .cs-item:nth-child(3) { left: 15%; bottom: 7%; width: 42%; --cs-rot: 1.8deg; }
+
+/* 进场：按槽位依次长出(外层管入场,内层管焦点——transform 分层不打架) */
+.cs-item {
+  opacity: 0;
+  animation: cs-in 900ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: calc(var(--cs-delay, 0) * 1ms);
+}
+@keyframes cs-in {
+  from { opacity: 0; transform: translateY(56px) scale(0.96) rotate(var(--cs-rot, 0deg)); }
+  to   { opacity: 1; transform: translateY(0)    scale(1)    rotate(var(--cs-rot, 0deg)); }
+}
+
+/* 焦点 DOF：焦点卡放大,其余压暗退远。
+   压暗用叠加层（opacity 过渡）而不是 filter——filter 打在视频上会
+   逐帧滤波,录制时加重 screencast 负担 */
+.cs-focus {
+  position: relative;
+  transition: transform 700ms var(--ease-soft, ease-in-out);
+}
+.cs-dim {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: 16px;
+  pointer-events: none;
+  background: rgba(4, 5, 9, 0.5);
+  opacity: 0;
+  transition: opacity 700ms var(--ease-soft, ease-in-out);
+}
+.cs-focus.is-focus { transform: scale(1.05); z-index: 1; }
+.cs-focus.is-recede .cs-dim { opacity: 1; }
+
+/* ── MediaCard — 素材卡外壳 ── */
+.media-card {
+  margin: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #0d0f14;
+  border: 1px solid var(--border, rgba(246, 242, 232, 0.16));
+  box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+}
+.mc-media {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  background: var(--card-bg, rgba(255, 255, 255, 0.05));
+}
+.mc-media > video,
+.mc-media > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.mc-media > img.mc-kb {
+  animation: mc-kenburns 16s ease-in-out infinite alternate;
+}
+@keyframes mc-kenburns {
+  from { transform: scale(1) translate(0, 0); }
+  to   { transform: scale(1.09) translate(1.4%, -1.2%); }
+}
+.mc-slot {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  opacity: 0.5;
+}
+.mc-bar {
+  padding: 12px 18px;
+  font-family: var(--font-mono, "Space Grotesk", monospace);
+  font-size: 14px;
+  letter-spacing: 0.12em;
+  color: var(--text-dim, #aaa59a);
+  border-top: 1px solid var(--border, rgba(246, 242, 232, 0.1));
+  display: flex;
+  gap: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.mc-bar .mc-tag { color: var(--accent, #b98eff); font-weight: 700; flex: none; }
+
+/* RingProgress — 圆环从 0 生长到 value（--rp-from = 周长 × value，组件内联注入） */
+@keyframes rp-fill {
+  from { stroke-dashoffset: var(--rp-from, 1); }
+  to   { stroke-dashoffset: 0; }
+}

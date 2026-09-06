@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family:"Space Grotesk"; src:url("../fonts/space-grotesk-500-normal.woff2") format("woff2"); font-weight:500; }
+  @font-face { font-family:"Space Grotesk"; src:url("../fonts/space-grotesk-700-normal.woff2") format("woff2"); font-weight:700; }
+  @font-face { font-family:"Noto Sans SC"; src:local("Noto Sans SC"); }
+  @font-face { font-family:"PingFang SC"; src:local("PingFang SC"); }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1920px; height:1080px; overflow:hidden; background:#08090d; }
+  [data-composition-id] {
+    position:relative; width:1920px; height:1080px; color:#f6f2e8;
+    background:
+      radial-gradient(900px 640px at 28% 60%, rgba(90,140,255,0.13), transparent 68%),
+      radial-gradient(1100px 700px at 80% 28%, rgba(185,142,255,0.09), transparent 70%),
+      linear-gradient(168deg, #0b1226 0%, #0a1120 46%, #0c1530 100%);
+    font-family:"Noto Sans SC","PingFang SC",sans-serif; overflow:hidden;
+  }
+  .grid { position:absolute; inset:0; opacity:0.45;
+    background:
+      repeating-linear-gradient(0deg, rgba(148,180,255,0.05) 0 1px, transparent 1px 72px),
+      repeating-linear-gradient(90deg, rgba(148,180,255,0.05) 0 1px, transparent 1px 72px);
+    mask-image:radial-gradient(1200px 800px at 42% 50%, #000 40%, transparent 100%);
+  }
+  .kicker { position:absolute; top:70px; left:120px; font-family:"Space Grotesk",monospace;
+    font-size:24px; letter-spacing:0.22em; color:#aaa59a; }
+  .col { position:absolute; left:160px; right:160px; top:170px; bottom:120px;
+    display:flex; flex-direction:column; justify-content:flex-end; gap:34px; }
+  .row { display:flex; }
+  .row.right { justify-content:flex-end; }
+  /* 打字点气泡（先呼吸,后变身成真评论） */
+  .dots-bubble { padding:26px 36px; border-radius:26px 26px 26px 8px;
+    background:rgba(246,242,232,0.08); border:1px solid rgba(246,242,232,0.14);
+    display:flex; gap:14px; align-items:center; }
+  .dots-bubble i { width:16px; height:16px; border-radius:50%;
+    background:rgba(246,242,232,0.55); }
+  .bubble { position:relative; max-width:900px; padding:30px 42px;
+    font-size:40px; line-height:1.45; border-radius:28px; overflow:hidden; }
+  .bubble .u { display:block; font-family:"Space Grotesk",monospace; font-size:20px;
+    letter-spacing:0.16em; margin-bottom:10px; opacity:0.6; }
+  .bubble.left  { border-radius:28px 28px 28px 8px;  background:rgba(246,242,232,0.08);
+    border:1px solid rgba(246,242,232,0.14); }
+  .bubble.right { border-radius:28px 28px 8px 28px; background:rgba(185,142,255,0.14);
+    border:1px solid rgba(185,142,255,0.5); }
+  /* 气泡长出：scaleX 0.04 过冲（connector-morph 手法） */
+  .pop { transform:scaleX(0.04); transform-origin:14% 100%; opacity:0; }
+  .caption { position:absolute; left:0; right:0; bottom:44px; text-align:center;
+    font-family:"Space Grotesk",monospace; font-size:22px; letter-spacing:0.2em;
+    color:#aaa59a; opacity:0; }
+</style>
+</head>
+<body>
+<div data-composition-id="tplchatpop" data-start="0" data-duration="8" data-width="1920" data-height="1080" data-fps="25">
+  <div class="grid"></div>
+  <div id="kicker" class="kicker clip" data-start="0" data-duration="8" data-track-index="0">评论区 · TPL-CHAT-POP</div>
+
+  <div id="chat-col" class="col clip" data-start="0" data-duration="8" data-track-index="1">
+    <!-- 打字点气泡:呼吸后变身第一条评论 -->
+    <div class="row"><div id="dots" class="dots-bubble"><i></i><i></i><i></i></div></div>
+    <!-- 三条评论:改这里的内容,时间轴在下方 COMMENTS 对齐 -->
+    <div class="row"><div id="c1" class="bubble left pop"><span class="u">@老张</span>我重生成八遍才发现,是断句的问题。</div></div>
+    <div class="row right"><div id="c2" class="bubble right pop"><span class="u">@Momo</span>楼上的波形图能发我看看吗?</div></div>
+    <div class="row"><div id="c3" class="bubble left pop"><span class="u">@阿七</span>收藏了,周末就照这个排查。</div></div>
+  </div>
+
+  <div id="caption" class="caption clip" data-start="0" data-duration="8" data-track-index="2">TPL · CHAT-POP — 改文案即用</div>
+</div>
+<script src="../vendor/gsap/dist/gsap.min.js"></script>
+<script>
+  window.__timelines = window.__timelines || {};
+  // ── 参数区:三条评论的出场时刻(秒),与旁白对位后只改这里 ──
+  const T = { dots: 0.3, c1: 1.1, c2: 3.1, c3: 5.1, caption: 6.9 };
+
+  const tl = gsap.timeline({ paused: true });
+
+  // 打字点:先错相呼吸 3 拍,再整体退场(变成第一条评论)
+  tl.fromTo("#dots i",
+    { opacity: 0.2, y: 0 },
+    { opacity: 1, y: -12, duration: 0.38, stagger: 0.16, yoyo: true, repeat: 3, ease: "power1.inOut" },
+    T.dots);
+  tl.to("#dots", { scale: 0.6, opacity: 0, duration: 0.22, ease: "power2.in" }, T.c1 - 0.22);
+
+  // 评论依次长出:scaleX 0.04 → 1 过冲 + blur 清除
+  [["#c1", T.c1], ["#c2", T.c2], ["#c3", T.c3]].forEach(([sel, at]) => {
+    tl.to(sel, { opacity: 1, scaleX: 1, duration: 0.5,
+      ease: "back.out(1.8)" }, at);
+    tl.fromTo(sel, { filter: "blur(6px)" },
+      { filter: "blur(0px)", duration: 0.34, ease: "power2.out" }, at);
+  });
+
+  tl.to("#caption", { opacity: 1, duration: 0.4 }, T.caption);
+
+  window.__timelines.tplchatpop = tl;
+</script>
+</body>
+</html>

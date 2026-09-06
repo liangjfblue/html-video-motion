@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family:"Space Grotesk"; src:url("../fonts/space-grotesk-500-normal.woff2") format("woff2"); font-weight:500; }
+  @font-face { font-family:"Space Grotesk"; src:url("../fonts/space-grotesk-700-normal.woff2") format("woff2"); font-weight:700; }
+  @font-face { font-family:"Noto Sans SC"; src:local("Noto Sans SC"); }
+  @font-face { font-family:"PingFang SC"; src:local("PingFang SC"); }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1920px; height:1080px; overflow:hidden; background:#08090d; }
+  [data-composition-id] {
+    position:relative; width:1920px; height:1080px; color:#f6f2e8;
+    background:
+      radial-gradient(900px 620px at 50% 38%, rgba(255,196,2,0.05), transparent 70%),
+      radial-gradient(1000px 680px at 78% 70%, rgba(56,132,255,0.09), transparent 70%),
+      linear-gradient(168deg, #0b1226 0%, #0a1120 46%, #0d1530 100%);
+    font-family:"Noto Sans SC","PingFang SC",sans-serif; overflow:hidden;
+  }
+  .grid { position:absolute; inset:0; opacity:0.5;
+    background:
+      repeating-linear-gradient(0deg, rgba(148,180,255,0.05) 0 1px, transparent 1px 72px),
+      repeating-linear-gradient(90deg, rgba(148,180,255,0.05) 0 1px, transparent 1px 72px);
+    mask-image:radial-gradient(1200px 800px at 50% 50%, #000 40%, transparent 100%);
+  }
+  .glow { position:absolute; inset:0;
+    background:radial-gradient(880px 620px at 50% 40%, rgba(56,132,255,0.08), transparent 70%); }
+  .kicker { position:absolute; top:70px; left:120px;
+    font-family:"Space Grotesk",monospace; font-size:24px; font-weight:500;
+    letter-spacing:0.22em; color:#aaa59a; }
+  .mit { position:absolute; top:62px; right:120px; padding:10px 30px;
+    border:1.5px solid #ffc402; border-radius:999px; color:#ffc402;
+    font-family:"Space Grotesk",monospace; font-size:24px; letter-spacing:0.2em; }
+  .term { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    width:1300px; border:1px solid rgba(246,242,232,0.16); border-radius:18px;
+    background:#0b0d12; overflow:hidden; box-shadow:0 30px 80px rgba(0,0,0,0.55); }
+  .term-head { display:flex; align-items:center; gap:12px; padding:20px 26px;
+    border-bottom:1px solid rgba(246,242,232,0.10); }
+  .term-head .b { width:16px; height:16px; border-radius:50%; }
+  .term-head .r { background:#ff5f57; } .term-head .y { background:#febc2e; } .term-head .g { background:#28c840; }
+  .term-head .t { margin-left:14px; font-family:"Space Grotesk",monospace; font-size:22px; color:#aaa59a; }
+  .term-body { padding:52px 56px 60px; font-family:"Space Grotesk","Noto Sans SC",monospace; }
+  .cmd { display:flex; align-items:baseline; gap:20px; font-size:36px; line-height:1.55; }
+  .cmd .p { color:#28c840; }
+  .cmd .c { color:#f6f2e8; white-space:nowrap; }
+  .cmd .c .cursor { display:inline-block; width:17px; height:40px; background:#ffc402;
+    vertical-align:-6px; margin-left:4px; }
+  .ok { margin-top:36px; font-size:28px; color:#28c840; opacity:0; }
+  .foot { margin-top:40px; font-size:26px; color:#aaa59a; letter-spacing:0.08em;
+    font-family:"Noto Sans SC","PingFang SC",sans-serif; }
+  .foot b { color:#ffc402; }
+</style>
+</head>
+<body>
+<div data-composition-id="b09cta" data-start="0" data-duration="7.3" data-width="1920" data-height="1080" data-fps="25">
+  <div class="grid"></div>
+  <div class="glow"></div>
+  <div id="kicker" class="kicker clip" data-start="0" data-duration="7.3" data-track-index="0">OPEN SOURCE</div>
+  <div id="mit" class="mit clip" data-start="0" data-duration="7.3" data-track-index="0">MIT LICENSE</div>
+
+  <div id="term" class="term clip" data-start="0" data-duration="7.3" data-track-index="1">
+    <div class="term-head">
+      <span class="b r"></span><span class="b y"></span><span class="b g"></span>
+      <span class="t">你的工作台 — zsh</span>
+    </div>
+    <div class="term-body">
+      <div class="cmd" id="l1"><span class="p">$</span><span class="c"><span id="t1"></span><span class="cursor" id="cu1"></span></span></div>
+      <div class="ok" id="okline">✓ my-side-panel 已挂载到侧栏</div>
+      <div class="foot" id="foot">装完后：侧栏多出一个 <b>「我的」</b> —— 知识 / TODO / 项目 / 收件箱</div>
+    </div>
+  </div>
+</div>
+<script src="../vendor/gsap/dist/gsap.min.js"></script>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  tl.from("#kicker", { opacity: 0, y: -16, duration: 0.3 }, 0);
+  // MIT 协议（口播 2.34s 起句）
+  tl.from("#mit", { opacity: 0, scale: 0.85, duration: 0.3 }, 2.35);
+  tl.from("#term", { opacity: 0, y: 60, duration: 0.5 }, 0.3);
+  tl.from("#foot", { opacity: 0, duration: 0.4 }, 1.3);
+
+  // 一条命令（口播 5.37s 「装起来其实就一条命令」起打）
+  const TEXT = 'npx my-workbench init --profile web add my-side-panel';
+  const el = { v: 0 };
+  tl.to(el, {
+    v: TEXT.length, duration: 1.1, ease: "none",
+    onUpdate: () => { document.getElementById("t1").textContent = TEXT.slice(0, Math.round(el.v)); },
+  }, 5.3);
+  tl.to("#cu1", { opacity: 0, duration: 0.12, repeat: 5, yoyo: true }, 5.3);
+  tl.set("#cu1", { opacity: 0 }, 6.4);
+  tl.to("#okline", { opacity: 1, duration: 0.25 }, 6.5);
+
+  window.__timelines.b09cta = tl;
+</script>
+</body>
+</html>

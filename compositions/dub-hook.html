@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family:"Noto Sans SC"; src:local("Noto Sans SC"); }
+  @font-face { font-family:"PingFang SC"; src:local("PingFang SC"); }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1920px; height:1080px; overflow:hidden; background:#08090d; }
+  [data-composition-id] {
+    position:relative; width:1920px; height:1080px; color:#f6f2e8;
+    background:
+      radial-gradient(900px 640px at 26% 58%, rgba(90,140,255,0.14), transparent 68%),
+      radial-gradient(1100px 700px at 82% 30%, rgba(185,142,255,0.09), transparent 70%),
+      linear-gradient(168deg, #0b1226 0%, #0a1120 46%, #0c1530 100%);
+    font-family:"Noto Sans SC","PingFang SC",sans-serif; overflow:hidden;
+  }
+  .grid { position:absolute; inset:0; opacity:0.5;
+    background:
+      repeating-linear-gradient(0deg, rgba(148,180,255,0.055) 0 1px, transparent 1px 72px),
+      repeating-linear-gradient(90deg, rgba(148,180,255,0.055) 0 1px, transparent 1px 72px);
+    mask-image:radial-gradient(1200px 800px at 40% 50%, #000 40%, transparent 100%);
+  }
+  .wrap { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+  .eq { display:flex; gap:16px; align-items:flex-end; height:170px; margin-bottom:76px; }
+  .eq span { width:24px; border-radius:8px; background:#4FC3F7; transform-origin:bottom; transform:scaleY(0.25); }
+  h1 { font-size:156px; line-height:1.3; font-weight:700; color:#fff; }
+  h1 .ai { color:#ffc402; }
+  .sub { margin-top:34px; font-size:48px; color:#aaa59a; opacity:0; }
+  .badge { margin-top:56px; display:inline-block; padding:20px 52px; border-radius:16px;
+    background:rgba(198,255,77,.1); border:2px solid rgba(198,255,77,.65);
+    color:#C6FF4D; font-size:54px; font-weight:700; letter-spacing:5px; opacity:0; }
+</style>
+</head>
+<body>
+<div data-composition-id="dubhook" data-start="0" data-duration="10" data-width="1920" data-height="1080" data-fps="25">
+  <div class="grid"></div>
+  <div class="wrap">
+    <div class="eq" id="eq"></div>
+    <h1 id="t1">你现在听到的这段声音<br>是 <span class="ai">AI 配的</span></h1>
+    <div class="sub" id="s1">不是我录的。你不信吧？连我自己都差点没听出来。</div>
+    <div class="badge" id="b1">方法直接开源 · 拿走就能用</div>
+  </div>
+</div>
+<script src="../vendor/gsap/dist/gsap.min.js"></script>
+<script>
+  const eq = document.getElementById("eq");
+  for (let i = 0; i < 30; i++) {
+    const s = document.createElement("span");
+    s.id = "b" + i;
+    eq.appendChild(s);
+  }
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+  // 声纹条：全程循环律动（30 条 × 错峰）
+  for (let i = 0; i < 30; i++) {
+    tl.to("#b" + i, { scaleY: 0.35 + ((i * 37) % 10) / 14, duration: 0.34,
+      ease: "sine.inOut", yoyo: true, repeat: 28 }, (i % 7) * 0.05);
+  }
+  // 主文案
+  tl.from("#t1", { y: 34, duration: 0.55, ease: "power3.out" }, 0.5);
+  tl.to("#s1", { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 2.3);
+  // 开源 badge 盖章
+  tl.to("#b1", { opacity: 1, scale: 1, duration: 0.45, ease: "power3.out" }, 5.4);
+  // 7s 后声纹转荧光绿（呼应 badge）
+  for (let i = 0; i < 30; i++) {
+    tl.to("#b" + i, { backgroundColor: "#ffc402", duration: 0.4 }, 6.8 + (i % 5) * 0.06);
+  }
+  window.__timelines.dubhook = tl;
+</script>
+</body>
+</html>

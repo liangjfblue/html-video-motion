@@ -1,0 +1,483 @@
+/* EnhanceLab — 视觉增强组件库页。
+ *
+ * 尺寸体系：卡片是 inline-size 容器，卡内所有字号/留白用 cqw 等比
+ * （基准：900px 宽卡片）+ clamp 上下限；页面级元素用 vw clamp。
+ * 列数只由网格 minmax 决定——任何视口宽度、任何浏览器缩放下，
+ * 卡片内部比例恒定，不存在档位跳变。
+ * 字体：得意黑（展示/演示主字，自托管）+ MiSans（正文，jsdelivr 分包）。 */
+@import url("https://cdn.jsdelivr.net/npm/misans@4.1.0/lib/Normal/MiSans-Normal.min.css");
+@import url("https://cdn.jsdelivr.net/npm/misans@4.1.0/lib/Normal/MiSans-Medium.min.css");
+@import url("https://cdn.jsdelivr.net/npm/misans@4.1.0/lib/Normal/MiSans-Semibold.min.css");
+@import url("https://cdn.jsdelivr.net/npm/misans@4.1.0/lib/Normal/MiSans-Bold.min.css");
+@import url("https://cdn.jsdelivr.net/npm/misans@4.1.0/lib/Normal/MiSans-Heavy.min.css");
+
+/* 展示字体：得意黑（自托管，OFL）——页标题/卡片名/演示主字 */
+@font-face {
+  font-family: "Smiley Sans";
+  src: url("/fonts/SmileySans-Oblique.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
+/* 浅色·奶油变体下，影片把 --primary 定为近黑（文字感）；实验室页
+   需要图形有色彩，这里把 primary 换回高饱和蓝（仅作用于本页）。 */
+[data-theme="light"] .el-scroll,
+html[data-theme="light"] {
+  --primary: #3d6df6;
+}
+
+.el-scroll {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--shell, #08090d);
+  color: var(--text, #f6f2e8);
+  font-family: "MiSans", "PingFang SC", "Noto Sans SC", "HarmonyOS Sans SC", "Microsoft YaHei", sans-serif;
+  padding: clamp(16px, 1.7vw, 32px) clamp(32px, 4.6vw, 88px) clamp(40px, 3.8vw, 72px);
+}
+
+/* ── 页头 ─────────────────────────────────────── */
+.el-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 0 auto 14px;
+}
+/* 页头右组：主题胶囊与 GitHub 图标留出呼吸间距 */
+.el-hd-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex: none;
+}
+.el-title {
+  margin: 0;
+  font-family: "Smiley Sans", "MiSans", "PingFang SC", sans-serif;
+  font-size: clamp(24px, 3.1vw, 60px);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.05;
+  color: var(--accent, #b98eff);
+}
+.el-themes {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.16));
+  border-radius: 999px;
+  background: var(--bg, rgba(255, 255, 255, 0.03));
+}
+.el-theme {
+  position: relative;
+  border: 0;
+  border-radius: 999px;
+  padding: 7px 12px 7px 26px;
+  color: var(--text-muted, #9a958a);
+  background: transparent;
+  font: 600 clamp(12px, 0.78vw, 14px) / 1 inherit;
+  cursor: pointer;
+  transition: color 160ms ease-out, background 160ms ease-out;
+}
+.el-theme::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--theme-dot, var(--accent));
+  transform: translateY(-50%);
+}
+.el-theme:nth-child(1) { --theme-dot: #b98eff; }
+.el-theme:nth-child(2) { --theme-dot: #c8a96f; }
+.el-theme:nth-child(3) { --theme-dot: #55d4c5; }
+.el-theme:hover { color: var(--text, #f6f2e8); }
+.el-theme.is-on {
+  color: var(--text, #f6f2e8);
+  background: var(--card-bg, rgba(255, 255, 255, 0.06));
+}
+.el-theme:focus-visible,
+.el-cat:focus-visible,
+.el-copy:focus-visible {
+  outline: 2px solid var(--accent, #b98eff);
+  outline-offset: 3px;
+}
+.el-sub code,
+.el-api code {
+  font-family: var(--font-mono, "Space Grotesk", monospace);
+  color: var(--accent, #b98eff);
+}
+
+/* ── 分类筛选 ─────────────────────────────────── */
+.el-cats {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 0 auto clamp(16px, 1.5vw, 22px);
+}
+.el-cat {
+  padding: clamp(5px, 0.45vw, 8px) clamp(12px, 1.1vw, 20px);
+  font-size: clamp(12px, 0.95vw, 17px);
+  font-family: inherit;
+  color: var(--text, #f6f2e8);
+  background: transparent;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.2));
+  border-radius: 999px;
+  cursor: pointer;
+  opacity: 0.7;
+}
+.el-cat.is-on {
+  opacity: 1;
+  border-color: var(--accent, #b98eff);
+  color: var(--accent, #b98eff);
+  font-weight: 700;
+}
+
+@media (max-width: 680px) {
+  .el-header { align-items: flex-start; flex-direction: column; gap: 14px; }
+  .el-themes { align-self: flex-start; }
+  .el-hd-right { flex-wrap: wrap; }
+}
+
+/* ── 卡片网格：自适应列数 ─────────────────────── */
+.el-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)); /* 固定 3 列，任何显示器不变；卡内尺寸随卡宽 cqw 等比 */
+  gap: clamp(14px, 1.45vw, 28px);
+  margin: 0 auto;
+}
+.el-card {
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.14));
+  border-radius: 18px;
+  background: var(--card-bg, rgba(255, 255, 255, 0.04));
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  cursor: default;
+  container-type: inline-size;
+  transition: border-color 0.18s ease-out, transform 0.18s ease-out, box-shadow 0.18s ease-out;
+}
+.el-card:hover {
+  border-color: var(--accent, #b98eff);
+  transform: translateY(-4px);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+}
+
+/* 演示舞台：16:9 满幅（圆角由舞台自裁，卡身 overflow 可见放行 tipbox） */
+.el-stage {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 17px 17px 0 0;
+  background: var(--bg, rgba(255, 255, 255, 0.03));
+  border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.12));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(10px, 2.3cqw, 20px);
+  font-size: clamp(14px, 3.6cqw, 32px);
+  text-align: center;
+}
+.el-stage h1, .el-stage h2, .el-stage h3, .el-stage p { margin: 0; }
+.el-stage h3 { font-size: clamp(17px, 4.2cqw, 38px); font-weight: 800; line-height: 1.32; }
+.el-stage h1 { font-size: clamp(24px, 5.3cqw, 48px); font-weight: 900; }
+/* 演示主字：得意黑大字撑满舞台（.el-stage 前缀压过 .el-stage h1/h3 的字号） */
+.el-stage .el-display {
+  font-family: "Smiley Sans", "MiSans", "PingFang SC", sans-serif;
+  font-size: clamp(26px, 8cqw, 72px);
+  font-weight: 400;
+  line-height: 1.16;
+  letter-spacing: 0.02em;
+}
+.el-stage .el-display-sm { font-family: "Smiley Sans", "MiSans", "PingFang SC", sans-serif; font-size: clamp(18px, 4.9cqw, 44px); font-weight: 400; line-height: 1.25; }
+.el-stage-fill {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.el-abs { position: absolute; inset: 0; }
+.el-z { position: relative; z-index: 1; }
+.el-hint {
+  font-family: "Smiley Sans", "MiSans", "PingFang SC", sans-serif;
+  font-size: clamp(22px, 6.5cqw, 58px);
+  font-weight: 400;
+  line-height: 1.2;
+  opacity: 0.85;
+}
+.el-cardish {
+  border-radius: 12px;
+  background: var(--card-bg, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.16));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* HY 合成实播：1920×1080 画布等比缩放铺满 16:9 舞台 */
+.el-hyframe {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.el-hyframe iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1920px;
+  height: 1080px;
+  border: 0;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+
+/* ── 卡片下半：标题行 + 三行信息 ─────────────── */
+.el-body {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 1.35cqw, 12px);
+  padding: clamp(12px, 2.6cqw, 24px) clamp(14px, 3cqw, 28px) clamp(13px, 2.8cqw, 26px);
+}
+.el-titlerow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+.el-name {
+  margin: 0;
+  font-family: "Smiley Sans", "MiSans", "PingFang SC", sans-serif;
+  font-size: clamp(20px, 4.3cqw, 38px);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+}
+.el-id {
+  font-family: var(--font-mono, monospace);
+  font-size: clamp(11px, 1.75cqw, 16px);
+  opacity: 0.45;
+}
+.el-chips {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+  flex: none;
+}
+.el-pill {
+  padding: 4px 13px;
+  font-size: clamp(11px, 1.75cqw, 16px);
+  font-weight: 600;
+  border-radius: 999px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.2));
+  white-space: nowrap;
+}
+.el-pill-entrance, .el-pill-emphasis, .el-pill-data,
+.el-pill-flow, .el-pill-ambient, .el-pill-finale {
+  color: #7ed957;
+  border-color: rgba(126, 217, 87, 0.55);
+  background: rgba(126, 217, 87, 0.08);
+}
+.el-pill-react  { color: var(--accent, #b98eff); border-color: var(--accent, #b98eff); }
+.el-pill-css    { color: #7ec8ff; border-color: rgba(126, 200, 255, 0.55); }
+.el-pill-hyperframes { color: var(--accent-gold, #ffc402); border-color: rgba(255, 196, 2, 0.55); }
+
+.el-row {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(10px, 1.8cqw, 16px);
+  font-size: clamp(14px, 2.5cqw, 23px);
+  font-weight: 500;
+  line-height: 1.5;
+}
+.el-label {
+  flex: none;
+  width: clamp(32px, 5.6cqw, 50px);
+  font-size: clamp(13px, 2.25cqw, 20px);
+  font-weight: 700;
+  color: var(--accent, #b98eff);
+}
+.el-val { opacity: 0.85; min-width: 0; }
+
+/* 要点行：短语 + hover 弹出参数/时机/不要详情 */
+.el-row-tip { position: relative; }
+.el-row-tip .el-val {
+  text-decoration: underline dotted color-mix(in srgb, currentColor 40%, transparent);
+  text-underline-offset: 5px;
+}
+.el-tipbox {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: clamp(44px, 7.6cqw, 68px);
+  z-index: 30;
+  width: max-content;
+  max-width: 400px;
+  padding: 12px 15px;
+  display: none;
+  flex-direction: column;
+  gap: 7px;
+  text-align: left;
+  font-size: clamp(12px, 1.75cqw, 16px);
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text, #f6f2e8);
+  background: rgba(10, 11, 16, 0.97);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.2));
+  border-radius: 12px;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  animation: el-tip-in 0.16s ease-out;
+}
+.el-row-tip:hover .el-tipbox { display: flex; }
+@keyframes el-tip-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.el-tipbox b {
+  font-weight: 700;
+  color: var(--accent, #b98eff);
+  margin-right: 8px;
+}
+
+.el-apiwrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+}
+.el-api {
+  flex: 1;
+  min-width: 0;
+  display: block;
+  font-family: var(--font-mono, monospace);
+  font-size: clamp(12px, 1.75cqw, 16px);
+  color: var(--accent, #b98eff);
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 9px;
+  padding: 9px 13px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.el-copy {
+  flex: none;
+  padding: 0 15px;
+  font-size: clamp(12px, 1.75cqw, 16px);
+  font-weight: 700;
+  font-family: inherit;
+  color: var(--text, #f6f2e8);
+  background: var(--card-bg, rgba(255, 255, 255, 0.07));
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.22));
+  border-radius: 9px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.el-copy:hover { border-color: var(--accent, #b98eff); color: var(--accent, #b98eff); }
+.el-copy.is-ok { border-color: #54c890; color: #54c890; }
+
+/* ── 各演示的辅助样式（随卡片宽度等比） ───────── */
+.el-rule-demo { display: flex; flex-direction: column; gap: 14px; width: 76%; font-size: clamp(12px, 2.4cqw, 22px); }
+.el-rule-demo .rule-grow { height: 5px; background: var(--accent, #b98eff); border-radius: 3px; }
+.el-badge {
+  padding: 12px 26px;
+  border: 2px solid var(--accent, #b98eff);
+  border-radius: 999px;
+  color: var(--accent, #b98eff);
+  font-size: clamp(14px, 2.7cqw, 24px);
+  font-weight: 700;
+}
+.el-stage .el-letters { font-size: clamp(34px, 8.9cqw, 80px); letter-spacing: 0.06em; font-family: "Smiley Sans", "MiSans", sans-serif; }
+.el-stage .el-whip { font-size: clamp(16px, 4cqw, 36px); font-weight: 700; font-family: "Smiley Sans", "MiSans", "PingFang SC", sans-serif; }
+.el-bubble-wrap { display: flex; align-items: center; gap: 12px; }
+.el-bubble {
+  padding: clamp(9px, 1.6cqw, 14px) clamp(14px, 2.7cqw, 24px);
+  font-size: clamp(13px, 2.6cqw, 23px);
+  border-radius: 18px 18px 6px 18px;
+  background: var(--card-bg, rgba(255, 255, 255, 0.09));
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.16));
+}
+.el-shot-demo { margin: 0; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.el-shot-ph {
+  width: min(250px, 64%);
+  aspect-ratio: 250 / 135;
+  border-radius: 10px;
+  background: var(--primary, #5a8cff);
+  opacity: 0.85;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: clamp(12px, 2.2cqw, 20px);
+}
+.el-shot-demo figcaption { font-size: clamp(11px, 1.55cqw, 16px); opacity: 0.6; }
+.el-halo-wrap { position: relative; width: 46px; height: 46px; }
+.el-halo-dot, .el-halo-ring {
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  background: var(--accent, #b98eff);
+}
+.el-halo-ring { background: transparent; border: 3px solid var(--accent, #b98eff); }
+.el-stage .el-bignum { font-size: clamp(34px, 9.8cqw, 88px); font-weight: 900; color: var(--accent-gold, #ffc402); font-variant-numeric: tabular-nums; }
+.el-chart { width: 100%; height: 100%; }
+.el-svg { width: 92%; }
+.el-morph { width: 88%; height: 80%; }
+.el-morph .morph-cell { font-size: clamp(13px, 2.7cqw, 24px); font-weight: 700; background: var(--card-bg, rgba(255, 255, 255, 0.07)); border-radius: 10px; }
+.el-dots-wrap { display: flex; align-items: center; gap: 12px; font-size: clamp(14px, 2.7cqw, 24px); }
+.el-cards { height: 100%; }
+.el-fig-demo {
+  margin: 0;
+  padding: 20px 32px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.2));
+  border-radius: 12px;
+  font-size: clamp(14px, 2.8cqw, 25px);
+}
+
+/* 聚光演示：提示文字落在焦点亮区里（压暗区外不可读） */
+.el-stage .el-focus-hint {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: "Smiley Sans", "MiSans", "PingFang SC", sans-serif;
+  font-size: clamp(20px, 4.6cqw, 42px);
+  font-weight: 400;
+  opacity: 1;
+  z-index: 1;
+  width: 92%;
+  white-space: normal;
+}
+
+.el-footer {
+  margin: 40px auto 0;
+  text-align: center;
+  font-size: clamp(12px, 0.85vw, 15px);
+  opacity: 0.5;
+}
+
+@media (max-width: 980px) {
+  .el-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 620px) {
+  .el-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* 右上 GitHub 链接 */
+.el-header .el-github {
+  flex: none;
+  align-self: flex-start;
+  margin-top: clamp(4px, 0.5vw, 10px);
+  color: var(--text-muted, #aaa59a);
+  transition: color 0.18s ease-out, transform 0.18s ease-out;
+  line-height: 0;
+}
+.el-header .el-github:hover {
+  color: var(--accent, #b98eff);
+  transform: translateY(-2px);
+}

@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family:"Space Grotesk"; src:url("../fonts/space-grotesk-500-normal.woff2") format("woff2"); font-weight:500; }
+  @font-face { font-family:"Space Grotesk"; src:url("../fonts/space-grotesk-700-normal.woff2") format("woff2"); font-weight:700; }
+  @font-face { font-family:"Noto Sans SC"; src:local("Noto Sans SC"); }
+  @font-face { font-family:"PingFang SC"; src:local("PingFang SC"); }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1920px; height:1080px; overflow:hidden; background:#08090d; }
+  [data-composition-id] {
+    position:relative; width:1920px; height:1080px; color:#f6f2e8;
+    background:
+      radial-gradient(900px 620px at 72% 44%, rgba(120,80,90,0.10), transparent 68%),
+      radial-gradient(1000px 660px at 18% 40%, rgba(90,140,255,0.08), transparent 70%),
+      linear-gradient(168deg, #0b1226 0%, #0a1120 46%, #101528 100%);
+    font-family:"Noto Sans SC","PingFang SC",sans-serif; overflow:hidden;
+  }
+  .grid { position:absolute; inset:0; opacity:0.5;
+    background:
+      repeating-linear-gradient(0deg, rgba(148,180,255,0.05) 0 1px, transparent 1px 72px),
+      repeating-linear-gradient(90deg, rgba(148,180,255,0.05) 0 1px, transparent 1px 72px);
+    mask-image:radial-gradient(1200px 800px at 50% 50%, #000 40%, transparent 100%);
+  }
+  .glow { position:absolute; inset:0;
+    background:radial-gradient(860px 620px at 70% 45%, rgba(255,110,110,0.06), transparent 70%); }
+  .kicker { position:absolute; top:70px; left:120px;
+    font-family:"Space Grotesk",monospace; font-size:24px; font-weight:500;
+    letter-spacing:0.22em; color:#aaa59a; }
+  /* 左：会话切换示意 */
+  .sessions { position:absolute; left:120px; top:190px; width:640px;
+    border:1px solid rgba(246,242,232,0.16); border-radius:18px; background:#0d0f14;
+    padding:26px; }
+  .sessions h3 { font-size:26px; color:#aaa59a; letter-spacing:0.14em; margin-bottom:22px;
+    font-family:"Space Grotesk",monospace; }
+  .sess { display:flex; align-items:center; gap:18px; padding:24px 26px;
+    border:1px solid rgba(246,242,232,0.14); border-radius:14px; margin-bottom:18px;
+    font-size:30px; }
+  .sess .dot { width:14px; height:14px; border-radius:50%; background:#3a3d46; }
+  .sess.active { border-color:rgba(185,142,255,0.55); background:rgba(185,142,255,0.07); }
+  .sess.active .dot { background:#b98eff; box-shadow:0 0 14px rgba(185,142,255,0.8); }
+  .sess small { margin-left:auto; color:#aaa59a; font-size:22px; }
+  .ghost { opacity:0.22; }
+  .disconnected { display:inline-block; margin-left:14px; padding:6px 16px; border-radius:999px;
+    background:rgba(255,110,110,0.14); color:#ff8f8f; font-size:22px; }
+  /* 右：KEY LIST */
+  .keycard { position:absolute; right:120px; top:170px; width:860px;
+    border:1px solid rgba(246,242,232,0.16); border-radius:22px; background:#0d0f14;
+    padding:44px 54px; }
+  .keycard h2 { font-size:46px; font-weight:900; margin-bottom:12px; }
+  .keycard h2 em { color:#ff8f8f; font-style:normal; }
+  .keycard .sub { font-size:24px; color:#aaa59a; margin-bottom:34px; letter-spacing:0.08em; }
+  .item { display:flex; align-items:center; gap:24px; padding:26px 10px;
+    border-bottom:1px dashed rgba(246,242,232,0.14); font-size:38px; font-weight:700; }
+  .item:last-child { border-bottom:none; }
+  .item .no { font-family:"Space Grotesk",monospace; font-size:26px; color:#ffc402; }
+  .item .word { position:relative; }
+  .item .word i { position:absolute; left:-4%; top:54%; height:6px; width:108%;
+    background:#ff8f8f; transform:scaleX(0); transform-origin:left; border-radius:3px; }
+  /* 底部横幅 */
+  .banner { position:absolute; left:50%; bottom:88px; transform:translateX(-50%);
+    padding:22px 56px; border-radius:18px; background:rgba(255,143,143,0.10);
+    border:1.5px solid rgba(255,143,143,0.5); font-size:44px; font-weight:900; }
+  .banner em { color:#ff8f8f; font-style:normal; }
+</style>
+</head>
+<body>
+<div data-composition-id="b03gap" data-start="0" data-duration="8.2" data-width="1920" data-height="1080" data-fps="25">
+  <div class="grid"></div>
+  <div class="glow"></div>
+  <div id="kicker" class="kicker clip" data-start="0" data-duration="8.2" data-track-index="0">痛点 · CONTEXT GAP</div>
+
+  <div id="sessions" class="sessions clip" data-start="0" data-duration="8.2" data-track-index="1">
+    <h3>SESSIONS</h3>
+    <div class="sess active" id="s1"><span class="dot"></span>会话 A · 刚干完活<small>上周</small></div>
+    <div class="sess" id="s2"><span class="dot"></span>新会话<small>今天</small></div>
+    <div class="sess" id="s3"><span class="dot"></span>又一个新会话<small>明天</small></div>
+  </div>
+
+  <div id="keycard" class="keycard clip" data-start="0" data-duration="8.2" data-track-index="2">
+    <h2>换个会话，它就<em>把你忘了</em></h2>
+    <div class="sub">每次都得从零开始，重新交代——</div>
+    <div class="item" id="k1"><span class="no">01</span><span class="word">项目进展<i></i></span></div>
+    <div class="item" id="k2"><span class="no">02</span><span class="word">知识积累<i></i></span></div>
+    <div class="item" id="k3"><span class="no">03</span><span class="word">上周交代的事<i></i></span></div>
+  </div>
+
+  <div id="banner" class="banner clip" data-start="0" data-duration="8.2" data-track-index="3">
+    对每个新会话来说：你是个<em>陌生人</em>
+  </div>
+</div>
+<script src="../vendor/gsap/dist/gsap.min.js"></script>
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+
+  tl.from("#kicker", { opacity: 0, y: -16, duration: 0.3 }, 0);
+  tl.from("#sessions", { opacity: 0, x: -70, duration: 0.5 }, 0.25);
+  tl.from("#keycard", { opacity: 0, x: 70, duration: 0.5 }, 0.45);
+
+  // 口播 L1 "换个会话，它就把你忘了" → 切换会话：s1 断开、s2 激活
+  tl.add("switch", 1.7);
+  tl.to("#s1", { opacity: 0.22, duration: 0.4 }, "switch");
+  tl.add(() => { document.querySelector("#s1").classList.add("ghost");
+                 document.querySelector("#s2").classList.add("active"); }, "switch+=0.35");
+  tl.fromTo("#s2 .dot", { scale: 1 }, { scale: 1.25, duration: 0.2, yoyo: true, repeat: 1 }, "switch+=0.4");
+
+  // L2：三条 KEY LIST 依次出现并划掉
+  tl.from("#k1", { opacity: 0, x: 46, duration: 0.38 }, 3.6);
+  tl.to("#k1 .word i", { scaleX: 1, duration: 0.32 }, 4.15);
+  tl.from("#k2", { opacity: 0, x: 46, duration: 0.38 }, 4.5);
+  tl.to("#k2 .word i", { scaleX: 1, duration: 0.32 }, 5.0);
+  tl.from("#k3", { opacity: 0, x: 46, duration: 0.38 }, 5.4);
+  tl.to("#k3 .word i", { scaleX: 1, duration: 0.32 }, 5.9);
+
+  // L3：底部横幅盖章
+  tl.fromTo("#banner", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.45, ease: "power3.out" }, 6.6);
+
+  window.__timelines.b03gap = tl;
+</script>
+</body>
+</html>

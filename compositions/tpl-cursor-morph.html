@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family:"Space Grotesk"; src:url("../fonts/space-grotesk-500-normal.woff2") format("woff2"); font-weight:500; }
+  @font-face { font-family:"Space Grotesk"; src:url("../fonts/space-grotesk-700-normal.woff2") format("woff2"); font-weight:700; }
+  @font-face { font-family:"Noto Sans SC"; src:local("Noto Sans SC"); }
+  @font-face { font-family:"PingFang SC"; src:local("PingFang SC"); }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1920px; height:1080px; overflow:hidden; background:#e9e5da; }
+  [data-composition-id] {
+    position:relative; width:1920px; height:1080px; color:#262624;
+    background:
+      radial-gradient(1000px 700px at 30% 40%, rgba(255,255,255,0.7), transparent 70%),
+      linear-gradient(160deg, #f0ece2 0%, #e7e2d4 100%);
+    font-family:"Noto Sans SC","PingFang SC",sans-serif; overflow:hidden;
+  }
+  .kicker { position:absolute; top:70px; left:120px; font-family:"Space Grotesk",monospace;
+    font-size:24px; letter-spacing:0.22em; color:#8a867a; }
+  /* + 按钮的几何形变链:圆 → 菜单面板(width/height/radius/bg 同步补间) */
+  #box { position:absolute; left:50%; top:52%; transform:translate(-50%,-50%);
+    width:150px; height:150px; border-radius:75px;
+    background:#faf9f5; border:2px solid #dcd8cc;
+    box-shadow:0 4px 12px rgba(38,38,36,0.05), 0 48px 110px -40px rgba(38,38,36,0.4);
+    display:flex; align-items:center; justify-content:center; }
+  #plus { font-size:64px; font-weight:300; color:#8a867a; line-height:1; }
+  #menu { position:absolute; inset:0; padding:34px 38px; opacity:0;
+    display:flex; flex-direction:column; gap:10px; }
+  .mrow { display:flex; align-items:center; gap:18px; padding:20px 22px;
+    border-radius:14px; font-size:32px; }
+  .mrow .ic { width:44px; height:44px; border-radius:10px; background:#e7e2d6;
+    display:flex; align-items:center; justify-content:center; font-size:24px; }
+  .mrow .sc { margin-left:auto; font-family:"Space Grotesk",monospace;
+    font-size:20px; color:#b0ab9e; }
+  /* 假光标:基底钉在原点,全部位移走 x/y transform（left/top 会逐帧像素抖动） */
+  #cursor { position:absolute; left:0; top:0; width:56px; z-index:9;
+    filter:drop-shadow(0 4px 6px rgba(0,0,0,0.3)); }
+</style>
+</head>
+<body>
+<div data-composition-id="tplcursormorph" data-start="0" data-duration="8" data-width="1920" data-height="1080" data-fps="25">
+  <div id="kicker" class="kicker clip" data-start="0" data-duration="8" data-track-index="0">产品演示 · TPL-CURSOR-MORPH</div>
+
+  <div id="box" class="clip" data-start="0" data-duration="8" data-track-index="1">
+    <div id="plus">+</div>
+    <div id="menu">
+      <!-- 改这三行文案 = 你的产品菜单 -->
+      <div class="mrow" id="m1"><span class="ic">▣</span>新建提案<span class="sc">⌘N</span></div>
+      <div class="mrow" id="m2"><span class="ic">◇</span>打开项目<span class="sc">⌘O</span></div>
+      <div class="mrow" id="m3"><span class="ic">⌥</span>偏好设置<span class="sc">⌘,</span></div>
+    </div>
+  </div>
+
+  <svg id="cursor" class="clip" data-start="0" data-duration="8" data-track-index="2" viewBox="0 0 28 28">
+    <path d="M4 2 L4 22 L10 16.5 L14 25 L18 23 L14 14.8 L22 14.2 Z"
+      fill="#262624" stroke="#faf9f5" stroke-width="1.6"/>
+  </svg>
+</div>
+<script src="../vendor/gsap/dist/gsap.min.js"></script>
+<script>
+  window.__timelines = window.__timelines || {};
+  // ── 参数区:节拍时刻(秒)。对位旁白后只改这里 ──
+  const T = { enter: 0.2, hover: 1.4, press: 2.2, morph: 2.8, rows: 3.4, pick: 5.0 };
+
+  const tl = gsap.timeline({ paused: true });
+  const EO = "power3.out";
+
+  // 光标 x/y = tip 目标像素位 −(12,8) 锚点偏移（tip 在 21% 14% of 56px）
+  // 起始：屏幕下方 (960,1158)；+ 按钮中心 (960,562)；菜单第二行 (960,532)
+  gsap.set("#cursor", { x: 948, y: 1150 });
+  tl.from("#cursor", { opacity: 0, duration: 0.2 }, T.enter);
+
+  // 入场:按钮缩放就位(留 0.8 给 hover 再展开,层次感)
+  tl.from("#box", { scale: 0.35, opacity: 0, duration: 0.9, ease: EO }, T.enter);
+  // 光标沿直轴上行(不斜切、不分段——connector-morph 准则)
+  tl.to("#cursor", { y: 554, duration: 0.92, ease: EO }, T.enter + 0.25);
+
+  // hover:圆体长出 chrome(背景/描边/阴影同步补间 = 深度)
+  tl.to("#box", { scale: 1, duration: 0.55, ease: "expo.out" }, T.hover);
+  tl.to("#box", { boxShadow: "0 12px 30px rgba(38,38,36,0.12), 0 66px 150px -38px rgba(38,38,36,0.52)",
+    duration: 0.5, ease: "power2.out" }, T.hover + 0.02);
+
+  // 点击:按压 0.12s(变灰 + 前压),回弹 0.18s;光标 tip 同步点按
+  tl.to("#box", { scale: 1.07, backgroundColor: "#e7e2d6", borderColor: "#cfc9ba",
+    duration: 0.12, ease: "power2.out", overwrite: "auto" }, T.press);
+  tl.to("#box", { scale: 1, backgroundColor: "#faf9f5", borderColor: "#dcd8cc",
+    duration: 0.18, ease: "power2.inOut", overwrite: "auto" }, T.press + 0.12);
+  tl.to("#cursor", { scale: 0.84, duration: 0.1, ease: "power2.in", transformOrigin: "21% 14%" }, T.press);
+  tl.to("#cursor", { scale: 1, duration: 0.22, ease: "power2.out", transformOrigin: "21% 14%" }, T.press + 0.1);
+
+  // 几何形变:圆 → 菜单面板;width/height/radius/bg 同步补间
+  tl.to("#box", { width: 560, height: 400, borderRadius: 22,
+    duration: 0.58, ease: "power2.inOut" }, T.morph);
+  tl.to("#plus", { opacity: 0, duration: 0.2 }, T.morph);
+  tl.to("#menu", { opacity: 1, duration: 0.34 }, T.morph + 0.25);
+  tl.to("#cursor", { y: 524, duration: 0.5, ease: EO }, T.morph + 0.4);
+
+  // 菜单三行 stagger 入;光标点选第二行,高亮从同色相 0 透明度淡入
+  tl.from("#m1", { opacity: 0, y: 16, duration: 0.4, ease: EO }, T.rows);
+  tl.from("#m2", { opacity: 0, y: 16, duration: 0.4, ease: EO }, T.rows + 0.09);
+  tl.from("#m3", { opacity: 0, y: 16, duration: 0.4, ease: EO }, T.rows + 0.18);
+  tl.to("#cursor", { y: 538, duration: 0.3, ease: EO }, T.pick + 0.1);
+  tl.fromTo("#m2", { backgroundColor: "rgba(227,222,210,0)" },
+    { backgroundColor: "rgba(227,222,210,1)", duration: 0.16 }, T.pick + 0.42);
+  tl.to("#cursor", { scale: 0.84, duration: 0.1, ease: "power2.in", transformOrigin: "21% 14%" }, T.pick + 0.42);
+  tl.to("#cursor", { scale: 1, duration: 0.2, ease: "power2.out", transformOrigin: "21% 14%" }, T.pick + 0.52);
+
+  window.__timelines.tplcursormorph = tl;
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#141a2e"/><stop offset="1" stop-color="#2b1a3e"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#g)"/>
+  <rect x="120" y="120" width="480" height="300" rx="18" fill="#1f2940" stroke="#3d6df6" stroke-opacity="0.5"/>
+  <rect x="150" y="160" width="300" height="14" rx="7" fill="#3d6df6" fill-opacity="0.7"/>
+  <rect x="150" y="196" width="380" height="10" rx="5" fill="#8892b0" fill-opacity="0.5"/>
+  <rect x="150" y="222" width="340" height="10" rx="5" fill="#8892b0" fill-opacity="0.35"/>
+  <rect x="680" y="120" width="480" height="300" rx="18" fill="#241a33" stroke="#b98eff" stroke-opacity="0.5"/>
+  <rect x="710" y="160" width="260" height="14" rx="7" fill="#b98eff" fill-opacity="0.8"/>
+  <rect x="710" y="196" width="400" height="10" rx="5" fill="#8892b0" fill-opacity="0.5"/>
+  <rect x="120" y="470" width="1040" height="120" rx="16" fill="#101625"/>
+  <text x="640" y="545" text-anchor="middle" font-family="sans-serif" font-size="42" fill="#f6f2e8" opacity="0.85">DEMO SCREENSHOT</text>
+</svg>
